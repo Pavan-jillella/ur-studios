@@ -34,58 +34,56 @@ const PortfolioSection = () => {
 
   return (
     <section id="portfolio" className="section-padding bg-background" ref={ref}>
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
-          <p className="font-body text-sm tracking-[0.4em] uppercase text-primary mb-4">Selected Works</p>
-          <h2 className="font-display text-4xl md:text-6xl font-medium text-foreground">
-            Featured <span className="italic text-gradient-gold">Portfolio</span>
+          <p className="font-body text-[13px] tracking-[0.3em] uppercase text-muted-foreground mb-3">Selected Works</p>
+          <h2 className="font-display text-4xl md:text-6xl font-medium text-foreground tracking-tight">
+            Featured Portfolio
           </h2>
-          <div className="gold-divider mx-auto mt-6" />
         </motion.div>
 
-        {/* Masonry Grid */}
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
+        {/* Grid — 2 columns with varied sizes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {images.map((image, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="break-inside-avoid group cursor-pointer relative overflow-hidden"
+              transition={{ duration: 0.6, delay: index * 0.08 }}
+              className={`group cursor-pointer relative overflow-hidden rounded-xl ${
+                index % 3 === 0 ? "md:col-span-2" : ""
+              }`}
               onClick={() => openLightbox(index)}
             >
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className={`w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] ${
+                  index % 3 === 0 ? "aspect-[21/9]" : "aspect-[4/3]"
+                }`}
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-background/0 group-hover:bg-background/40 transition-all duration-500 flex items-end">
-                <div className="p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                  <p className="font-body text-xs tracking-[0.3em] uppercase text-primary">{image.category}</p>
-                  <p className="font-serif text-lg text-foreground mt-1">{image.alt}</p>
-                </div>
-              </div>
+              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-all duration-500" />
             </motion.div>
           ))}
         </div>
 
-        {/* View More CTA */}
+        {/* CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 1 }}
-          className="text-center mt-12"
+          transition={{ delay: 0.8 }}
+          className="text-center mt-16"
         >
           <a
             href="#contact"
-            className="inline-block px-10 py-4 border border-primary/30 text-primary font-body text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
+            className="inline-block px-8 py-3.5 border border-foreground/15 text-foreground rounded-full font-body text-sm font-medium transition-all duration-300 hover:bg-foreground hover:text-background"
           >
             View Full Portfolio
           </a>
@@ -98,32 +96,32 @@ const PortfolioSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-foreground/95 flex items-center justify-center"
           onClick={closeLightbox}
         >
-          <button onClick={closeLightbox} className="absolute top-6 right-6 text-foreground hover:text-primary transition-colors z-10">
-            <X size={32} />
+          <button onClick={closeLightbox} className="absolute top-6 right-6 text-background/70 hover:text-background transition-colors z-10">
+            <X size={28} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); prevImage(); }}
-            className="absolute left-4 md:left-8 text-foreground hover:text-primary transition-colors z-10"
+            className="absolute left-4 md:left-8 text-background/50 hover:text-background transition-colors z-10"
           >
-            <ChevronLeft size={40} />
+            <ChevronLeft size={36} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); nextImage(); }}
-            className="absolute right-4 md:right-8 text-foreground hover:text-primary transition-colors z-10"
+            className="absolute right-4 md:right-8 text-background/50 hover:text-background transition-colors z-10"
           >
-            <ChevronRight size={40} />
+            <ChevronRight size={36} />
           </button>
           <motion.img
             key={lightboxIndex}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
             src={images[lightboxIndex].src}
             alt={images[lightboxIndex].alt}
-            className="max-h-[85vh] max-w-[90vw] object-contain"
+            className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
         </motion.div>

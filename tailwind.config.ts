@@ -16,7 +16,7 @@ export default {
       fontFamily: {
         display: ['Playfair Display', 'Georgia', 'serif'],
         serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-        body: ['Outfit', 'system-ui', 'sans-serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,16 +52,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          light: "hsl(var(--gold-light))",
-          dark: "hsl(var(--gold-dark))",
+        warm: {
+          DEFAULT: "hsl(var(--warm))",
+          light: "hsl(var(--warm-light))",
+          dark: "hsl(var(--warm-dark))",
         },
-        charcoal: {
-          DEFAULT: "hsl(var(--charcoal))",
-          light: "hsl(var(--charcoal-light))",
-        },
-        cream: "hsl(var(--cream))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -97,15 +92,7 @@ export default {
         },
         "slow-zoom": {
           "0%": { transform: "scale(1)" },
-          "100%": { transform: "scale(1.1)" },
-        },
-        "shimmer": {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        "float": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+          "100%": { transform: "scale(1.05)" },
         },
       },
       animation: {
@@ -113,9 +100,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.8s ease-out forwards",
         "fade-in": "fade-in 0.6s ease-out forwards",
-        "slow-zoom": "slow-zoom 20s ease-in-out infinite alternate",
-        "shimmer": "shimmer 3s ease-in-out infinite",
-        "float": "float 6s ease-in-out infinite",
+        "slow-zoom": "slow-zoom 25s ease-in-out infinite alternate",
       },
     },
   },

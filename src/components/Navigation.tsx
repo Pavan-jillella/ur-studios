@@ -26,13 +26,12 @@ const Navigation = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled ? "glass-card py-3" : "py-6 bg-transparent"
+        isScrolled ? "glass-nav py-3" : "py-5 bg-transparent"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-6 lg:px-12">
-        <a href="#" className="font-display text-2xl font-semibold tracking-wide text-foreground">
-          <span className="text-gradient-gold">Aurelia</span>
-          <span className="text-muted-foreground font-body text-xs ml-2 tracking-[0.3em] uppercase">Studio</span>
+        <a href="#" className="font-display text-xl font-semibold tracking-tight text-foreground">
+          Aurelia
         </a>
 
         {/* Desktop Nav */}
@@ -41,14 +40,14 @@ const Navigation = () => {
             <a
               key={link.label}
               href={link.href}
-              className="font-body text-sm tracking-[0.15em] uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
+              className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
             >
               {link.label}
             </a>
           ))}
           <a
             href="#contact"
-            className="ml-4 px-6 py-2.5 bg-primary text-primary-foreground font-body text-sm tracking-[0.15em] uppercase transition-all duration-300 hover:shadow-[var(--shadow-gold)]"
+            className="ml-2 px-5 py-2 bg-foreground text-background rounded-full font-body text-[13px] font-medium transition-all duration-300 hover:bg-foreground/80"
           >
             Book Now
           </a>
@@ -59,7 +58,7 @@ const Navigation = () => {
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           className="md:hidden text-foreground"
         >
-          {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
@@ -70,7 +69,7 @@ const Navigation = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass-card border-t border-border"
+            className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border"
           >
             <div className="flex flex-col items-center gap-6 py-8">
               {navLinks.map((link) => (
@@ -78,7 +77,7 @@ const Navigation = () => {
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsMobileOpen(false)}
-                  className="font-body text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-primary transition-colors"
+                  className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {link.label}
                 </a>
@@ -86,7 +85,7 @@ const Navigation = () => {
               <a
                 href="#contact"
                 onClick={() => setIsMobileOpen(false)}
-                className="px-8 py-3 bg-primary text-primary-foreground font-body text-sm tracking-[0.15em] uppercase"
+                className="px-6 py-2.5 bg-foreground text-background rounded-full font-body text-sm font-medium"
               >
                 Book Now
               </a>
