@@ -5,7 +5,7 @@ const testimonials = [
   {
     name: "Sarah & Michael",
     role: "Wedding, June 2025",
-    text: "Aurelia captured our wedding day with such beauty and emotion. Every time we look at our photos, we relive those magical moments.",
+    text: "UR Studios captured our wedding day with such beauty and emotion. Every time we look at our photos, we relive those magical moments.",
   },
   {
     name: "Emily Rodriguez",

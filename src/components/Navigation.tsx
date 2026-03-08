@@ -31,7 +31,7 @@ const Navigation = () => {
     >
       <div className="container mx-auto flex items-center justify-between px-6 lg:px-12">
         <a href="#" className="font-display text-xl font-semibold tracking-tight text-foreground">
-          Aurelia
+          UR Studios
         </a>
 
         {/* Desktop Nav */}

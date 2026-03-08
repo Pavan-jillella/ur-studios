@@ -27,7 +27,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-body text-[12px] text-muted-foreground">
-            © 2026 Aurelia Studio. All rights reserved.
+            © 2026 UR Studios. All rights reserved.
           </p>
           <div className="flex gap-6">
             {["Privacy", "Terms"].map((link) => (
