@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
             <a href="#" className="font-display text-xl font-semibold text-foreground">
-              Aurelia
+              UR Studios
             </a>
             <p className="font-body text-[13px] text-muted-foreground mt-2">
               Capturing timeless moments, one frame at a time.
