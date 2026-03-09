@@ -11,6 +11,10 @@ export interface BookingInsert {
 }
 
 export async function createBooking(booking: BookingInsert) {
+  if (!supabase) {
+    throw new Error("Booking service is not configured. Please try again later.");
+  }
+
   const { data, error } = await supabase
     .from("bookings")
     .insert(booking)
