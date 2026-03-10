@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -21,9 +21,25 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  // User exists but no profile (failed to load or doesn't exist)
+  // User exists but no profile — show error instead of redirect loop
   if (!profile) {
-    return <Navigate to="/login" replace />;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
+        <h1 className="font-display text-2xl font-medium text-foreground mb-3">
+          Account Setup Incomplete
+        </h1>
+        <p className="font-body text-muted-foreground max-w-md mb-6">
+          Your profile could not be loaded. This usually means the database
+          hasn't been set up yet. Please contact the site administrator.
+        </p>
+        <Link
+          to="/"
+          className="px-6 py-2.5 bg-foreground text-background rounded-full font-body text-sm font-medium"
+        >
+          Back to Home
+        </Link>
+      </div>
+    );
   }
 
   if (!allowedRoles.includes(profile.role)) {

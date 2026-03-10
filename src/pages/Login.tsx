@@ -12,33 +12,22 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect after auth state updates (profile loaded)
-  // If user is signed in but no profile exists, still redirect to portal
+  // If already logged in (e.g. navigated to /login while authenticated), redirect
   useEffect(() => {
     if (user && profile) {
       navigate(profile.role === "admin" ? "/admin" : "/portal", { replace: true });
     }
   }, [user, profile, navigate]);
 
-  // If user signed in but profile never loads, stop spinner after timeout
-  useEffect(() => {
-    if (!user || !loading) return;
-    const timeout = setTimeout(() => {
-      if (loading) {
-        setLoading(false);
-        toast.error("Could not load your profile. Please contact support or try again.");
-      }
-    }, 5000);
-    return () => clearTimeout(timeout);
-  }, [user, loading]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
       toast.success("Welcome back!");
-      // loading stays true until useEffect redirect fires
+      // Redirect immediately using the returned profile
+      const role = result.profile?.role;
+      navigate(role === "admin" ? "/admin" : "/portal", { replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       toast.error(msg);

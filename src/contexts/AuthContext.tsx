@@ -15,7 +15,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ user: User; profile: Profile | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -38,8 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (data) return data as Profile;
 
-      // Profile doesn't exist — auto-create it (handles users who signed up
-      // before the profiles table existed)
+      // Profile doesn't exist — auto-create it
       if (error && error.code === "PGRST116") {
         const fullName = currentUser.user_metadata?.full_name || "";
         const role = currentUser.user_metadata?.role || "client";
@@ -57,7 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error("Failed to fetch profile:", error.message);
-        return null;
       }
       return null;
     } catch (err) {
@@ -74,7 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let isMounted = true;
 
-    // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!isMounted) return;
       const currentUser = session?.user ?? null;
@@ -86,19 +83,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isMounted) setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       const currentUser = session?.user ?? null;
-      setUser(currentUser);
 
       if (event === "SIGNED_OUT") {
+        setUser(null);
         setProfile(null);
         return;
       }
 
+      setUser(currentUser);
       if (currentUser) {
         const p = await fetchProfile(currentUser);
         if (isMounted) setProfile(p);
@@ -113,13 +110,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchProfile]);
 
+  // signIn now returns the user and profile directly so callers can redirect immediately
   const signIn = async (email: string, password: string) => {
     if (!supabase) throw new Error("Auth service not configured.");
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) throw new Error(error.message);
+
+    const signedInUser = data.user;
+    setUser(signedInUser);
+
+    // Fetch profile right here so we can return it to the caller
+    const p = await fetchProfile(signedInUser);
+    setProfile(p);
+
+    return { user: signedInUser, profile: p };
   };
 
   const signUp = async (
