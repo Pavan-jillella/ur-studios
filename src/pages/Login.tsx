@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export default function Login() {
-  const { signIn, isAdmin } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,17 +18,18 @@ export default function Login() {
     try {
       await signIn(email, password);
       toast.success("Welcome back!");
-      // Small delay to let auth state update
-      setTimeout(() => {
-        navigate(isAdmin ? "/admin" : "/portal");
-      }, 100);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
       toast.error(msg);
-    } finally {
       setLoading(false);
     }
   };
+
+  // Redirect after auth state updates (profile loaded)
+  const { user, profile } = useAuth();
+  if (user && profile) {
+    navigate(profile.role === "admin" ? "/admin" : "/portal", { replace: true });
+  }
 
   const inputClasses =
     "w-full bg-transparent border border-border rounded-lg px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none transition-colors";

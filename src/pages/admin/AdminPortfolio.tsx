@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Upload, ImageIcon } from "lucide-react";
 import {
-  getPortfolioImages,
+  getAllPortfolioImages,
   createPortfolioImage,
   updatePortfolioImage,
   deletePortfolioImage,
@@ -74,7 +74,7 @@ export default function AdminPortfolio() {
   const fetchImages = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getPortfolioImages();
+      const data = await getAllPortfolioImages();
       setImages(data);
     } catch (err) {
       toast.error("Failed to load portfolio images");

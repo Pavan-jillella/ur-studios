@@ -32,6 +32,23 @@ export async function getPortfolioImages(): Promise<PortfolioImage[]> {
   return (data ?? []) as PortfolioImage[];
 }
 
+export async function getAllPortfolioImages(): Promise<PortfolioImage[]> {
+  if (!supabase) {
+    throw new Error("Service is not configured. Please try again later.");
+  }
+
+  const { data, error } = await supabase
+    .from("portfolio_images")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as PortfolioImage[];
+}
+
 export async function getFeaturedPortfolioImages(): Promise<PortfolioImage[]> {
   if (!supabase) {
     throw new Error("Service is not configured. Please try again later.");

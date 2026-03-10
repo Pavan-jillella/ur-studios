@@ -33,6 +33,23 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   return data as Testimonial[];
 }
 
+export async function getAllTestimonials(): Promise<Testimonial[]> {
+  if (!supabase) {
+    throw new Error("Service is not configured. Please try again later.");
+  }
+
+  const { data, error } = await supabase
+    .from("testimonials")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Testimonial[];
+}
+
 export async function createTestimonial(
   data: TestimonialInsert
 ): Promise<Testimonial> {

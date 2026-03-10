@@ -1,22 +1,23 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogIn, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const navLinks = [
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "Contact", href: "#contact" },
+const sectionLinks = [
+  { label: "Portfolio", section: "portfolio" },
+  { label: "Services", section: "services" },
+  { label: "About", section: "about" },
+  { label: "Testimonials", section: "testimonials" },
+  { label: "Contact", section: "contact" },
 ];
 
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isHomePage = location.pathname === "/";
 
@@ -25,6 +26,27 @@ const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Handle hash scrolling after navigation to homepage
+  useEffect(() => {
+    if (isHomePage && location.hash) {
+      const id = location.hash.replace("#", "");
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [isHomePage, location.hash]);
+
+  const scrollToSection = (section: string) => {
+    if (isHomePage) {
+      const el = document.getElementById(section);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(`/#${section}`);
+    }
+    setIsMobileOpen(false);
+  };
 
   return (
     <motion.nav
@@ -43,22 +65,24 @@ const Navigation = () => {
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
           {isHomePage &&
-            navLinks.map((link) => (
-              <a
+            sectionLinks.map((link) => (
+              <button
                 key={link.label}
-                href={link.href}
+                onClick={() => scrollToSection(link.section)}
                 className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
                 {link.label}
-              </a>
+              </button>
             ))}
 
-          <Link
-            to="/portfolio"
-            className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
-          >
-            {isHomePage ? "" : "Portfolio"}
-          </Link>
+          {!isHomePage && (
+            <Link
+              to="/portfolio"
+              className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              Portfolio
+            </Link>
+          )}
           <Link
             to="/blog"
             className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
@@ -93,12 +117,12 @@ const Navigation = () => {
           )}
 
           {isHomePage && (
-            <a
-              href="#contact"
+            <button
+              onClick={() => scrollToSection("contact")}
               className="ml-2 px-5 py-2 bg-foreground text-background rounded-full font-body text-[13px] font-medium transition-all duration-300 hover:bg-foreground/80"
             >
               Book Now
-            </a>
+            </button>
           )}
         </div>
 
@@ -122,23 +146,24 @@ const Navigation = () => {
           >
             <div className="flex flex-col items-center gap-6 py-8">
               {isHomePage &&
-                navLinks.map((link) => (
-                  <a
+                sectionLinks.map((link) => (
+                  <button
                     key={link.label}
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
+                    onClick={() => scrollToSection(link.section)}
                     className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </button>
                 ))}
-              <Link
-                to="/portfolio"
-                onClick={() => setIsMobileOpen(false)}
-                className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Portfolio
-              </Link>
+              {!isHomePage && (
+                <Link
+                  to="/portfolio"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Portfolio
+                </Link>
+              )}
               <Link
                 to="/blog"
                 onClick={() => setIsMobileOpen(false)}
@@ -172,13 +197,12 @@ const Navigation = () => {
                 </Link>
               )}
               {isHomePage && (
-                <a
-                  href="#contact"
-                  onClick={() => setIsMobileOpen(false)}
+                <button
+                  onClick={() => scrollToSection("contact")}
                   className="px-6 py-2.5 bg-foreground text-background rounded-full font-body text-sm font-medium"
                 >
                   Book Now
-                </a>
+                </button>
               )}
             </div>
           </motion.div>

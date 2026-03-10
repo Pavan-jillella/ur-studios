@@ -21,7 +21,16 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  if (profile && !allowedRoles.includes(profile.role)) {
+  // Profile not yet loaded — wait for it
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!allowedRoles.includes(profile.role)) {
     const redirect = profile.role === "admin" ? "/admin" : "/portal";
     return <Navigate to={redirect} replace />;
   }

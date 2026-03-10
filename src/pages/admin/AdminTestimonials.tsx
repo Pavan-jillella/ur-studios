@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Star as StarIcon } from "lucide-react";
 import {
-  getTestimonials,
+  getAllTestimonials,
   createTestimonial,
   updateTestimonial,
   deleteTestimonial,
@@ -93,7 +93,7 @@ export default function AdminTestimonials() {
   const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getTestimonials();
+      const data = await getAllTestimonials();
       setTestimonials(data);
     } catch (err) {
       toast.error("Failed to load testimonials");
