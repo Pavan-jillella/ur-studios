@@ -24,6 +24,7 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminBlogEditor from "./pages/admin/AdminBlogEditor";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminAlbumDetail from "./pages/admin/AdminAlbumDetail";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 import PortalLayout from "./components/portal/PortalLayout";
 import PortalBookings from "./pages/portal/PortalBookings";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/admin/blog/:id" element={<AdminBlogEditor />} />
               <Route path="/admin/gallery" element={<AdminGallery />} />
               <Route path="/admin/gallery/:id" element={<AdminAlbumDetail />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
           </Route>
 

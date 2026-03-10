@@ -6,6 +6,7 @@ import {
   MessageSquare,
   FileText,
   FolderOpen,
+  Users,
   LogOut,
 } from "lucide-react";
 import {
@@ -32,6 +33,7 @@ const navItems = [
   { label: "Testimonials", icon: MessageSquare, to: "/admin/testimonials" },
   { label: "Blog", icon: FileText, to: "/admin/blog" },
   { label: "Gallery", icon: FolderOpen, to: "/admin/gallery" },
+  { label: "Users", icon: Users, to: "/admin/users" },
 ];
 
 export default function AdminLayout() {
