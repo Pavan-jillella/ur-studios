@@ -17,4 +17,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["framer-motion", "@radix-ui/react-tooltip", "sonner"],
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
 });
