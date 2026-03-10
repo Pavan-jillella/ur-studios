@@ -27,19 +27,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+  const fetchProfile = useCallback(async (currentUser: User): Promise<Profile | null> => {
     if (!supabase) return null;
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId)
+        .eq("id", currentUser.id)
         .single();
+
+      if (data) return data as Profile;
+
+      // Profile doesn't exist — auto-create it (handles users who signed up
+      // before the profiles table existed)
+      if (error && error.code === "PGRST116") {
+        const fullName = currentUser.user_metadata?.full_name || "";
+        const role = currentUser.user_metadata?.role || "client";
+        const { data: created, error: insertError } = await supabase
+          .from("profiles")
+          .insert({ id: currentUser.id, full_name: fullName, role })
+          .select()
+          .single();
+        if (insertError) {
+          console.error("Failed to create profile:", insertError.message);
+          return null;
+        }
+        return created as Profile;
+      }
+
       if (error) {
         console.error("Failed to fetch profile:", error.message);
         return null;
       }
-      return data as Profile;
+      return null;
     } catch (err) {
       console.error("Profile fetch error:", err);
       return null;
@@ -60,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        const p = await fetchProfile(currentUser.id);
+        const p = await fetchProfile(currentUser);
         if (isMounted) setProfile(p);
       }
       if (isMounted) setLoading(false);
@@ -80,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (currentUser) {
-        const p = await fetchProfile(currentUser.id);
+        const p = await fetchProfile(currentUser);
         if (isMounted) setProfile(p);
       } else {
         setProfile(null);
