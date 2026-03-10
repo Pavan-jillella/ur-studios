@@ -46,27 +46,30 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function PortalBookings() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     async function load() {
       try {
         const data = await getClientBookings(user!.id);
         setBookings(data);
       } catch (err) {
-        toast.error("Failed to load bookings");
-        console.error(err);
+        console.error("Failed to load bookings:", err);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [user]);
+  }, [user, authLoading]);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));

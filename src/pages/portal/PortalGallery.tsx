@@ -27,7 +27,7 @@ function albumStatusVariant(status: string): "default" | "secondary" | "outline"
 }
 
 export default function PortalGallery() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [albums, setAlbums] = useState<GalleryAlbum[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedAlbumId, setExpandedAlbumId] = useState<string | null>(null);
@@ -35,21 +35,24 @@ export default function PortalGallery() {
   const [photosLoading, setPhotosLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     async function load() {
       try {
         const data = await getClientAlbums(user!.id);
         setAlbums(data);
       } catch (err) {
-        toast.error("Failed to load galleries");
-        console.error(err);
+        console.error("Failed to load galleries:", err);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [user]);
+  }, [user, authLoading]);
 
   const toggleAlbum = async (albumId: string) => {
     if (expandedAlbumId === albumId) {

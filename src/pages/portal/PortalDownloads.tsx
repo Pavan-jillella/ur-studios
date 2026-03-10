@@ -21,28 +21,31 @@ import { toast } from "sonner";
 type DownloadablePhoto = GalleryPhoto & { album_title: string };
 
 export default function PortalDownloads() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [photos, setPhotos] = useState<DownloadablePhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<string>("all");
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     async function load() {
       try {
         const data = await getDownloadablePhotos(user!.id);
         setPhotos(data);
       } catch (err) {
-        toast.error("Failed to load downloads");
-        console.error(err);
+        console.error("Failed to load downloads:", err);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [user]);
+  }, [user, authLoading]);
 
   const albumNames = useMemo(() => {
     const names = [...new Set(photos.map((p) => p.album_title))];
