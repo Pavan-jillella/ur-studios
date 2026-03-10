@@ -91,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         data: { full_name: fullName, role: "client" },
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     });
     if (error) throw new Error(error.message);
