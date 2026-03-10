@@ -16,6 +16,11 @@ create policy "Users can read own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+-- Users can insert their own profile (needed for auto-create on first login)
+create policy "Users can insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
 -- Users can update their own profile (but not role)
 create policy "Users can update own profile"
   on public.profiles for update
