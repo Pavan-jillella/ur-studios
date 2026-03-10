@@ -48,6 +48,11 @@ const Navigation = () => {
     setIsMobileOpen(false);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -100,7 +105,7 @@ const Navigation = () => {
                 {isAdmin ? "Admin" : "Portal"}
               </Link>
               <button
-                onClick={() => signOut()}
+                onClick={handleSignOut}
                 className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
               >
                 Sign Out
@@ -181,7 +186,7 @@ const Navigation = () => {
                     {isAdmin ? "Admin Dashboard" : "My Portal"}
                   </Link>
                   <button
-                    onClick={() => { signOut(); setIsMobileOpen(false); }}
+                    onClick={() => { handleSignOut(); setIsMobileOpen(false); }}
                     className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Sign Out

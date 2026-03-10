@@ -21,13 +21,9 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  // Profile not yet loaded — wait for it
+  // User exists but no profile (failed to load or doesn't exist)
   if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <Navigate to="/login" replace />;
   }
 
   if (!allowedRoles.includes(profile.role)) {

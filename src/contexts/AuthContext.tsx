@@ -27,14 +27,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     if (!supabase) return null;
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    return data as Profile | null;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      if (error) {
+        console.error("Failed to fetch profile:", error.message);
+        return null;
+      }
+      return data as Profile;
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+      return null;
+    }
   }, []);
 
   useEffect(() => {
@@ -43,32 +52,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    let isMounted = true;
+
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!isMounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
         const p = await fetchProfile(currentUser.id);
-        setProfile(p);
+        if (isMounted) setProfile(p);
       }
-      setLoading(false);
+      if (isMounted) setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+
+      if (event === "SIGNED_OUT") {
+        setProfile(null);
+        return;
+      }
+
       if (currentUser) {
         const p = await fetchProfile(currentUser.id);
-        setProfile(p);
+        if (isMounted) setProfile(p);
       } else {
         setProfile(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [fetchProfile]);
 
   const signIn = async (email: string, password: string) => {
@@ -99,9 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     if (!supabase) return;
-    await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    await supabase.auth.signOut();
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,11 +6,18 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export default function Login() {
-  const { signIn } = useAuth();
+  const { signIn, user, profile } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect after auth state updates (profile loaded)
+  useEffect(() => {
+    if (user && profile) {
+      navigate(profile.role === "admin" ? "/admin" : "/portal", { replace: true });
+    }
+  }, [user, profile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +31,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-
-  // Redirect after auth state updates (profile loaded)
-  const { user, profile } = useAuth();
-  if (user && profile) {
-    navigate(profile.role === "admin" ? "/admin" : "/portal", { replace: true });
-  }
 
   const inputClasses =
     "w-full bg-transparent border border-border rounded-lg px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none transition-colors";
