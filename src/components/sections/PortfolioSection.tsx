@@ -1,6 +1,8 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { getFeaturedPortfolioImages, type PortfolioImage } from "@/api/portfolio";
 
 import portfolio1 from "@/assets/portfolio-1.jpg";
 import portfolio2 from "@/assets/portfolio-2.jpg";
@@ -11,7 +13,7 @@ import portfolio6 from "@/assets/portfolio-6.jpg";
 import portfolio7 from "@/assets/portfolio-7.jpg";
 import portfolio8 from "@/assets/portfolio-8.jpg";
 
-const images = [
+const fallbackImages = [
   { src: portfolio1, alt: "Wedding first dance", category: "Wedding" },
   { src: portfolio2, alt: "Engagement in golden field", category: "Engagement" },
   { src: portfolio3, alt: "Wedding ceremony", category: "Wedding" },
@@ -26,6 +28,20 @@ const PortfolioSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [dbImages, setDbImages] = useState<PortfolioImage[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    getFeaturedPortfolioImages()
+      .then((data) => setDbImages(data))
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const hasDbImages = loaded && dbImages.length > 0;
+  const images = hasDbImages
+    ? dbImages.map((img) => ({ src: img.image_url, alt: img.alt_text || img.title, category: img.category }))
+    : fallbackImages;
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
@@ -35,7 +51,6 @@ const PortfolioSection = () => {
   return (
     <section id="portfolio" className="section-padding bg-background" ref={ref}>
       <div className="container mx-auto max-w-6xl">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -48,7 +63,6 @@ const PortfolioSection = () => {
           </h2>
         </motion.div>
 
-        {/* Grid — 2 columns with varied sizes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {images.map((image, index) => (
             <motion.div
@@ -74,19 +88,18 @@ const PortfolioSection = () => {
           ))}
         </div>
 
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.8 }}
           className="text-center mt-16"
         >
-          <a
-            href="#contact"
+          <Link
+            to="/portfolio"
             className="inline-block px-8 py-3.5 border border-foreground/15 text-foreground rounded-full font-body text-sm font-medium transition-all duration-300 hover:bg-foreground hover:text-background"
           >
             View Full Portfolio
-          </a>
+          </Link>
         </motion.div>
       </div>
 

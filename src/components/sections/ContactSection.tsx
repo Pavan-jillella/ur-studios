@@ -1,8 +1,11 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createBooking } from "@/api/bookings";
+import { getServices, type Service } from "@/api/services";
+import { createCheckoutSession } from "@/api/payments";
+import { useAuth } from "@/contexts/AuthContext";
 
 const initialFormData = {
   name: "",
@@ -19,13 +22,21 @@ const ContactSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    getServices()
+      .then((data) => setServices(data))
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      await createBooking({
+      const booking = await createBooking({
         name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
@@ -34,6 +45,30 @@ const ContactSection = () => {
         service_type: formData.shootType,
         message: formData.message || undefined,
       });
+
+      // Check if the selected service has a price for Stripe checkout
+      const selectedService = services.find(
+        (s) => s.slug === formData.shootType || s.title.toLowerCase().includes(formData.shootType)
+      );
+
+      if (selectedService?.price_cents && booking?.id) {
+        try {
+          const { url } = await createCheckoutSession({
+            booking_id: booking.id,
+            service_title: selectedService.title,
+            amount_cents: selectedService.price_cents,
+            customer_email: formData.email,
+            success_url: `${window.location.origin}/payment/success`,
+            cancel_url: `${window.location.origin}/payment/cancel`,
+          });
+          if (url) {
+            window.location.href = url;
+            return;
+          }
+        } catch {
+          // Stripe not configured — fall through to normal success
+        }
+      }
 
       toast.success("Thank you! We'll be in touch within 24 hours.");
       setFormData(initialFormData);
@@ -117,11 +152,21 @@ const ContactSection = () => {
             className={`${inputClasses} bg-background`}
             disabled={submitting}
           >
-            <option value="wedding">Wedding Photography</option>
-            <option value="engagement">Engagement Session</option>
-            <option value="portrait">Portrait Session</option>
-            <option value="event">Event Photography</option>
-            <option value="commercial">Commercial Photography</option>
+            {services.length > 0
+              ? services.map((s) => (
+                  <option key={s.id} value={s.slug}>
+                    {s.title} — {s.price}
+                  </option>
+                ))
+              : (
+                <>
+                  <option value="wedding">Wedding Photography</option>
+                  <option value="engagement">Engagement Session</option>
+                  <option value="portrait">Portrait Session</option>
+                  <option value="event">Event Photography</option>
+                  <option value="commercial">Commercial Photography</option>
+                </>
+              )}
           </select>
 
           <textarea
@@ -152,7 +197,9 @@ const ContactSection = () => {
               )}
             </button>
             <p className="font-body text-[13px] text-muted-foreground mt-4">
-              We respond within 24 hours. No commitment required.
+              {user
+                ? "Your booking will be linked to your account."
+                : "We respond within 24 hours. No commitment required."}
             </p>
           </div>
         </motion.form>

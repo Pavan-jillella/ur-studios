@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { label: "Portfolio", href: "#portfolio" },
@@ -13,6 +15,10 @@ const navLinks = [
 const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const location = useLocation();
+
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -30,27 +36,70 @@ const Navigation = () => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-6 lg:px-12">
-        <a href="#" className="font-display text-xl font-semibold tracking-tight text-foreground">
+        <Link to="/" className="font-display text-xl font-semibold tracking-tight text-foreground">
           UR Studios
-        </a>
+        </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            className="ml-2 px-5 py-2 bg-foreground text-background rounded-full font-body text-[13px] font-medium transition-all duration-300 hover:bg-foreground/80"
+          {isHomePage &&
+            navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                {link.label}
+              </a>
+            ))}
+
+          <Link
+            to="/portfolio"
+            className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
           >
-            Book Now
-          </a>
+            {isHomePage ? "" : "Portfolio"}
+          </Link>
+          <Link
+            to="/blog"
+            className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+          >
+            Blog
+          </Link>
+
+          {user ? (
+            <div className="flex items-center gap-4">
+              <Link
+                to={isAdmin ? "/admin" : "/portal"}
+                className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-1.5"
+              >
+                <User size={14} />
+                {isAdmin ? "Admin" : "Portal"}
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="font-body text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-1.5"
+            >
+              <LogIn size={14} />
+              Login
+            </Link>
+          )}
+
+          {isHomePage && (
+            <a
+              href="#contact"
+              className="ml-2 px-5 py-2 bg-foreground text-background rounded-full font-body text-[13px] font-medium transition-all duration-300 hover:bg-foreground/80"
+            >
+              Book Now
+            </a>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -72,23 +121,65 @@ const Navigation = () => {
             className="md:hidden bg-background/95 backdrop-blur-xl border-t border-border"
           >
             <div className="flex flex-col items-center gap-6 py-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
+              {isHomePage &&
+                navLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              <Link
+                to="/portfolio"
+                onClick={() => setIsMobileOpen(false)}
+                className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Portfolio
+              </Link>
+              <Link
+                to="/blog"
+                onClick={() => setIsMobileOpen(false)}
+                className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Blog
+              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to={isAdmin ? "/admin" : "/portal"}
+                    onClick={() => setIsMobileOpen(false)}
+                    className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {isAdmin ? "Admin Dashboard" : "My Portal"}
+                  </Link>
+                  <button
+                    onClick={() => { signOut(); setIsMobileOpen(false); }}
+                    className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
                   onClick={() => setIsMobileOpen(false)}
                   className="font-body text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {link.label}
+                  Login
+                </Link>
+              )}
+              {isHomePage && (
+                <a
+                  href="#contact"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="px-6 py-2.5 bg-foreground text-background rounded-full font-body text-sm font-medium"
+                >
+                  Book Now
                 </a>
-              ))}
-              <a
-                href="#contact"
-                onClick={() => setIsMobileOpen(false)}
-                className="px-6 py-2.5 bg-foreground text-background rounded-full font-body text-sm font-medium"
-              >
-                Book Now
-              </a>
+              )}
             </div>
           </motion.div>
         )}
