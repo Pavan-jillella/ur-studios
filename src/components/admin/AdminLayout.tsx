@@ -8,6 +8,7 @@ import {
   FolderOpen,
   Users,
   LogOut,
+  Heart,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -33,6 +34,7 @@ const navItems = [
   { label: "Testimonials", icon: MessageSquare, to: "/admin/testimonials" },
   { label: "Blog", icon: FileText, to: "/admin/blog" },
   { label: "Gallery", icon: FolderOpen, to: "/admin/gallery" },
+  { label: "Proofing", icon: Heart, to: "/admin/proofing" },
   { label: "Users", icon: Users, to: "/admin/users" },
 ];
 

@@ -27,6 +27,7 @@ const AdminBlog = lazy(() => import("./pages/admin/AdminBlog"));
 const AdminBlogEditor = lazy(() => import("./pages/admin/AdminBlogEditor"));
 const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminAlbumDetail = lazy(() => import("./pages/admin/AdminAlbumDetail"));
+const AdminProofingQueue = lazy(() => import("./pages/admin/AdminProofingQueue"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 
 const PortalLayout = lazy(() => import("./components/portal/PortalLayout"));
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/admin/blog/:id" element={<AdminBlogEditor />} />
                 <Route path="/admin/gallery" element={<AdminGallery />} />
                 <Route path="/admin/gallery/:id" element={<AdminAlbumDetail />} />
+                <Route path="/admin/proofing" element={<AdminProofingQueue />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
               </Route>
             </Route>
