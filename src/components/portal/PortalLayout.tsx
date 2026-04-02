@@ -27,11 +27,11 @@ export default function PortalLayout() {
         <div className="container mx-auto flex items-center justify-between px-6 py-3">
           {/* Brand */}
           <Link
-            to="/"
-            className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-foreground"
+            to="/portal"
+            className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-foreground transition-all hover:text-primary"
           >
             <Camera className="h-5 w-5 text-primary" />
-            UR pixelstudio
+            UR Pixel Studio
           </Link>
 
           {/* Nav Tabs - Desktop */}

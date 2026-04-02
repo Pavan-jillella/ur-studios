@@ -76,8 +76,8 @@ export default function Signup() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-10">
-          <Link to="/" className="font-display text-2xl font-semibold text-foreground">
-            UR pixelstudio
+          <Link to="/" className="font-display text-2xl font-bold tracking-tight text-foreground transition-all hover:text-primary">
+            UR Pixel Studio
           </Link>
           <h1 className="font-display text-3xl font-medium text-foreground mt-6">
             Create Account

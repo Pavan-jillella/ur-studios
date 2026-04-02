@@ -2,11 +2,11 @@ import { useEffect } from "react";
 
 /**
  * Sets the document title and meta description for the current page.
- * Title is formatted as "{title} | UR pixelstudio".
+ * Title is formatted as "{title} | UR Pixel Studio".
  */
 export function usePageMeta(title: string, description?: string): void {
   useEffect(() => {
-    document.title = `${title} | UR pixelstudio`;
+    document.title = `${title} | UR Pixel Studio`;
 
     if (description) {
       let metaDescription = document.querySelector<HTMLMetaElement>(
