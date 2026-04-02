@@ -48,7 +48,7 @@ export default function Login() {
       >
         <div className="text-center mb-10">
           <Link to="/" className="font-display text-2xl font-semibold text-foreground">
-            UR Studios
+            UR pixelstudio
           </Link>
           <h1 className="font-display text-3xl font-medium text-foreground mt-6">
             Welcome Back

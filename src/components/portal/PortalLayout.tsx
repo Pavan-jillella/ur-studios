@@ -31,7 +31,7 @@ export default function PortalLayout() {
             className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-foreground"
           >
             <Camera className="h-5 w-5 text-primary" />
-            UR Studios
+            UR pixelstudio
           </Link>
 
           {/* Nav Tabs - Desktop */}

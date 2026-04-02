@@ -60,7 +60,7 @@ export default function AdminLayout() {
         <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
           <div className="flex items-center gap-2">
             <span className="font-display text-xl font-bold tracking-tight">
-              UR Studios
+              UR pixelstudio
             </span>
             <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
               Admin

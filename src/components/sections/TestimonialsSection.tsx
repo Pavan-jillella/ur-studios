@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { getTestimonials, type Testimonial } from "@/api/testimonials";
 
 const fallbackTestimonials = [
-  { name: "Sarah & Michael", role: "Wedding, June 2025", text: "UR Studios captured our wedding day with such beauty and emotion. Every time we look at our photos, we relive those magical moments." },
+  { name: "Sarah & Michael", role: "Wedding, June 2025", text: "UR pixelstudio captured our wedding day with such beauty and emotion. Every time we look at our photos, we relive those magical moments." },
   { name: "Emily Rodriguez", role: "Engagement Session", text: "The engagement photos exceeded every expectation. The way she captured the golden hour light and our genuine emotions was breathtaking." },
   { name: "James & Anna", role: "Wedding, September 2025", text: "From the first consultation to the final gallery delivery, the experience was flawless. Our photos tell our story in the most cinematic way." },
   { name: "Victoria Chen", role: "Portrait Session", text: "I came in nervous and left feeling like a model. The portraits are stunning — moody, dramatic, and deeply personal." },

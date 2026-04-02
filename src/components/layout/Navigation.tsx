@@ -64,7 +64,7 @@ const Navigation = () => {
     >
       <div className="container mx-auto flex items-center justify-between px-6 lg:px-12">
         <Link to="/" className="font-display text-xl font-semibold tracking-tight text-foreground">
-          UR Studios
+          UR pixelstudio
         </Link>
 
         {/* Desktop Nav */}
