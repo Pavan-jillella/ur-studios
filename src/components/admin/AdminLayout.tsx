@@ -9,6 +9,9 @@ import {
   Users,
   LogOut,
   Heart,
+  LayoutDashboard,
+  Receipt,
+  BarChart3,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -28,14 +31,18 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/admin/dashboard" },
+  { label: "Clients", icon: Users, to: "/admin/clients" },
+  { label: "Projects", icon: FolderOpen, to: "/admin/projects" },
+  { label: "Invoices", icon: Receipt, to: "/admin/invoices" },
+  { label: "Reports", icon: BarChart3, to: "/admin/reports" },
   { label: "Bookings", icon: Calendar, to: "/admin/bookings" },
-  { label: "Portfolio", icon: Image, to: "/admin/portfolio" },
-  { label: "Services", icon: Camera, to: "/admin/services" },
+  { label: "Gallery", icon: Image, to: "/admin/gallery" },
+  { label: "Proofing", icon: Heart, to: "/admin/proofing" },
+  { label: "Portfolio", icon: Camera, to: "/admin/portfolio" },
+  { label: "Services", icon: FileText, to: "/admin/services" },
   { label: "Testimonials", icon: MessageSquare, to: "/admin/testimonials" },
   { label: "Blog", icon: FileText, to: "/admin/blog" },
-  { label: "Gallery", icon: FolderOpen, to: "/admin/gallery" },
-  { label: "Proofing", icon: Heart, to: "/admin/proofing" },
-  { label: "Users", icon: Users, to: "/admin/users" },
 ];
 
 export default function AdminLayout() {

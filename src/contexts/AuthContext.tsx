@@ -10,6 +10,28 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/api/profiles";
 
+// Mock users for exploration/development when Supabase is not configured
+const MOCK_USERS = {
+  "admin@urstudios.com": {
+    password: "Admin123!",
+    profile: {
+      id: "mock-admin-id",
+      full_name: "Admin User",
+      role: "admin" as const,
+      created_at: new Date().toISOString(),
+    },
+  },
+  "client@urstudios.com": {
+    password: "Client123!",
+    profile: {
+      id: "mock-client-id",
+      full_name: "Test Client",
+      role: "client" as const,
+      created_at: new Date().toISOString(),
+    },
+  },
+};
+
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
@@ -28,7 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = useCallback(async (currentUser: User): Promise<Profile | null> => {
-    if (!supabase) return null;
+    if (!supabase) {
+      // Check if it's a mock user
+      const mockUser = Object.values(MOCK_USERS).find(m => m.profile.id === currentUser.id);
+      return mockUser ? mockUser.profile as Profile : null;
+    }
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -38,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (data) return data as Profile;
 
-      // Profile doesn't exist — auto-create it
       if (error && error.code === "PGRST116") {
         const fullName = currentUser.user_metadata?.full_name || "";
         const role = currentUser.user_metadata?.role || "client";
@@ -65,6 +90,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Check for mock session first
+    const mockSession = sessionStorage.getItem("mock_auth_user");
+    if (mockSession) {
+      const userData = JSON.parse(mockSession);
+      setUser(userData.user);
+      setProfile(userData.profile);
+      setLoading(false);
+      return;
+    }
+
     if (!supabase) {
       setLoading(false);
       return;
@@ -110,9 +145,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchProfile]);
 
-  // signIn now returns the user and profile directly so callers can redirect immediately
   const signIn = async (email: string, password: string) => {
-    if (!supabase) throw new Error("Auth service not configured.");
+    // Mock authentication logic
+    if (!supabase || MOCK_USERS[email as keyof typeof MOCK_USERS]) {
+      const mockUser = MOCK_USERS[email as keyof typeof MOCK_USERS];
+      if (mockUser && mockUser.password === password) {
+        const fakeUser = {
+          id: mockUser.profile.id,
+          email: email,
+          user_metadata: { full_name: mockUser.profile.full_name },
+        } as any as User;
+        
+        setUser(fakeUser);
+        setProfile(mockUser.profile as Profile);
+        
+        // Persist mock session
+        sessionStorage.setItem("mock_auth_user", JSON.stringify({
+          user: fakeUser,
+          profile: mockUser.profile
+        }));
+
+        return { user: fakeUser, profile: mockUser.profile as Profile };
+      }
+      
+      if (!supabase) {
+        throw new Error("Auth service not configured. Use the test credentials found in analysis_results.md.");
+      }
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -122,7 +182,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const signedInUser = data.user;
     setUser(signedInUser);
 
-    // Fetch profile right here so we can return it to the caller
     const p = await fetchProfile(signedInUser);
     setProfile(p);
 
@@ -134,7 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     fullName: string
   ) => {
-    if (!supabase) throw new Error("Auth service not configured.");
+    if (!supabase) throw new Error("Registration is disabled in mock mode.");
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -147,10 +206,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!supabase) return;
+    sessionStorage.removeItem("mock_auth_user");
     setUser(null);
     setProfile(null);
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
   };
 
   return (
@@ -177,3 +238,4 @@ export function useAuth() {
   }
   return ctx;
 }
+

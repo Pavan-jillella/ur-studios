@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 const portalTabs = [
+  { label: "Home", to: "/portal" },
   { label: "My Bookings", to: "/portal/bookings" },
   { label: "My Gallery", to: "/portal/gallery" },
   { label: "Downloads", to: "/portal/downloads" },

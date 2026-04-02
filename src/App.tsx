@@ -19,6 +19,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
 const AdminPortfolio = lazy(() => import("./pages/admin/AdminPortfolio"));
 const AdminServices = lazy(() => import("./pages/admin/AdminServices"));
@@ -29,8 +30,14 @@ const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminAlbumDetail = lazy(() => import("./pages/admin/AdminAlbumDetail"));
 const AdminProofingQueue = lazy(() => import("./pages/admin/AdminProofingQueue"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
+const AdminClientProfile = lazy(() => import("./pages/admin/AdminClientProfile"));
+const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
+const AdminInvoices = lazy(() => import("./pages/admin/AdminInvoices"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 
 const PortalLayout = lazy(() => import("./components/portal/PortalLayout"));
+const PortalLanding = lazy(() => import("./pages/portal/PortalLanding"));
 const PortalBookings = lazy(() => import("./pages/portal/PortalBookings"));
 const PortalGallery = lazy(() => import("./pages/portal/PortalGallery"));
 const PortalDownloads = lazy(() => import("./pages/portal/PortalDownloads"));
@@ -63,7 +70,8 @@ const App = () => (
             {/* Admin Routes */}
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
               <Route element={<AdminLayout />}>
-                <Route path="/admin" element={<AdminBookings />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/bookings" element={<AdminBookings />} />
                 <Route path="/admin/portfolio" element={<AdminPortfolio />} />
                 <Route path="/admin/services" element={<AdminServices />} />
@@ -75,13 +83,18 @@ const App = () => (
                 <Route path="/admin/gallery/:id" element={<AdminAlbumDetail />} />
                 <Route path="/admin/proofing" element={<AdminProofingQueue />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/clients" element={<AdminClients />} />
+                <Route path="/admin/clients/:id" element={<AdminClientProfile />} />
+                <Route path="/admin/projects" element={<AdminProjects />} />
+                <Route path="/admin/invoices" element={<AdminInvoices />} />
+                <Route path="/admin/reports" element={<AdminReports />} />
               </Route>
             </Route>
 
             {/* Client Portal Routes */}
             <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
               <Route element={<PortalLayout />}>
-                <Route path="/portal" element={<PortalBookings />} />
+                <Route path="/portal" element={<PortalLanding />} />
                 <Route path="/portal/bookings" element={<PortalBookings />} />
                 <Route path="/portal/gallery" element={<PortalGallery />} />
                 <Route path="/portal/downloads" element={<PortalDownloads />} />
