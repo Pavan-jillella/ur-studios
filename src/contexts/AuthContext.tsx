@@ -10,7 +10,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/api/profiles";
 
-// Mock users for exploration/development when Supabase is not configured
+// Mock users ONLY used when Supabase is NOT configured (.env.local missing)
 const MOCK_USERS = {
   "admin@urstudios.com": {
     password: "Admin123!",
@@ -21,31 +21,11 @@ const MOCK_USERS = {
       created_at: new Date().toISOString(),
     },
   },
-  // Real photographer admin account
-  "pavankalyan171199@gmail.com": {
-    password: "1234567",
-    profile: {
-      id: "pavan-admin-id",
-      full_name: "Pavan Jillella",
-      role: "admin" as const,
-      created_at: new Date().toISOString(),
-    },
-  },
   "client@urstudios.com": {
     password: "Client123!",
     profile: {
       id: "mock-client-id",
       full_name: "Test Client",
-      role: "client" as const,
-      created_at: new Date().toISOString(),
-    },
-  },
-  // Demo client for testing
-  "demo@client.com": {
-    password: "Demo123!",
-    profile: {
-      id: "demo-client-id",
-      full_name: "Demo Client",
       role: "client" as const,
       created_at: new Date().toISOString(),
     },
@@ -80,50 +60,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     try {
       const isAdminEmail = ADMIN_EMAILS.includes(currentUser.email ?? "");
-      const intendedRole = isAdminEmail ? "admin" : "client";
-      const fullName = currentUser.user_metadata?.full_name || 
-        (isAdminEmail ? "Pavan Jillella" : "");
 
-      // Upsert the profile — this creates it if missing AND fixes the role if wrong
-      const { data: upserted, error: upsertError } = await supabase
+      // Simple select — profile should already exist (created on signup or via SQL)
+      const { data, error } = await supabase
         .from("profiles")
-        .upsert(
-          { id: currentUser.id, full_name: fullName, role: intendedRole },
-          { onConflict: "id", ignoreDuplicates: false }
-        )
-        .select()
+        .select("*")
+        .eq("id", currentUser.id)
         .single();
 
-      if (upserted) return upserted as Profile;
-
-      if (upsertError) {
-        // Upsert failed (maybe RLS blocks it on very first setup) — try plain select
-        console.warn("Profile upsert failed, falling back to select:", upsertError.message);
-        const { data: existing } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", currentUser.id)
-          .single();
-
-        if (existing) {
-          // Return with corrected role for admin emails even if DB has wrong value
-          return { ...existing, role: isAdminEmail ? "admin" : existing.role } as Profile;
+      if (data) {
+        // Override role for admin emails in case DB has wrong value
+        if (isAdminEmail && data.role !== "admin") {
+          return { ...data, role: "admin" } as Profile;
         }
-
-        // If we still can't get the profile, synthesize one in memory
-        // so the admin can still use the app
-        return {
-          id: currentUser.id,
-          full_name: fullName,
-          role: intendedRole,
-          avatar_url: null,
-          phone: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        } as Profile;
+        return data as Profile;
       }
 
-      return null;
+      if (error) {
+        console.warn("Profile fetch failed:", error.message);
+      }
+
+      // Fallback: synthesize profile in memory so the app doesn't hang
+      return {
+        id: currentUser.id,
+        full_name: currentUser.user_metadata?.full_name || (isAdminEmail ? "Pavan Jillella" : ""),
+        role: isAdminEmail ? "admin" : "client",
+        avatar_url: null,
+        phone: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as Profile;
     } catch (err) {
       console.error("Profile fetch error:", err);
       return null;
@@ -131,20 +97,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Check for mock session first
-    const mockSession = sessionStorage.getItem("mock_auth_user");
-    if (mockSession) {
-      const userData = JSON.parse(mockSession);
-      setUser(userData.user);
-      setProfile(userData.profile);
+    // Only use mock sessions if Supabase is NOT configured
+    if (!supabase) {
+      const mockSession = sessionStorage.getItem("mock_auth_user");
+      if (mockSession) {
+        const userData = JSON.parse(mockSession);
+        setUser(userData.user);
+        setProfile(userData.profile);
+      }
       setLoading(false);
       return;
     }
 
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    // Supabase IS configured — clear any stale mock sessions
+    sessionStorage.removeItem("mock_auth_user");
 
     let isMounted = true;
 
@@ -187,8 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile]);
 
   const signIn = async (email: string, password: string) => {
-    // Mock authentication logic
-    if (!supabase || MOCK_USERS[email as keyof typeof MOCK_USERS]) {
+    // If Supabase is NOT configured, use mock users
+    if (!supabase) {
       const mockUser = MOCK_USERS[email as keyof typeof MOCK_USERS];
       if (mockUser && mockUser.password === password) {
         const fakeUser = {
@@ -196,23 +162,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: email,
           user_metadata: { full_name: mockUser.profile.full_name },
         } as any as User;
-        
         setUser(fakeUser);
         setProfile(mockUser.profile as Profile);
-        
-        // Persist mock session
         sessionStorage.setItem("mock_auth_user", JSON.stringify({
           user: fakeUser,
           profile: mockUser.profile
         }));
-
         return { user: fakeUser, profile: mockUser.profile as Profile };
       }
-      
-      if (!supabase) {
-        throw new Error("Auth service not configured. Use the test credentials found in analysis_results.md.");
-      }
+      throw new Error("Auth service not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.");
     }
+
+    // Supabase IS configured — always use real auth
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
