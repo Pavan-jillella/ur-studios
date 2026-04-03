@@ -69,6 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Emails that should always be treated as admin
+  const ADMIN_EMAILS = ["pavankalyan171199@gmail.com", "admin@urstudios.com"];
+
   const fetchProfile = useCallback(async (currentUser: User): Promise<Profile | null> => {
     if (!supabase) {
       // Check if it's a mock user
@@ -76,32 +79,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return mockUser ? mockUser.profile as Profile : null;
     }
     try {
-      const { data, error } = await supabase
+      const isAdminEmail = ADMIN_EMAILS.includes(currentUser.email ?? "");
+      const intendedRole = isAdminEmail ? "admin" : "client";
+      const fullName = currentUser.user_metadata?.full_name || 
+        (isAdminEmail ? "Pavan Jillella" : "");
+
+      // Upsert the profile — this creates it if missing AND fixes the role if wrong
+      const { data: upserted, error: upsertError } = await supabase
         .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
+        .upsert(
+          { id: currentUser.id, full_name: fullName, role: intendedRole },
+          { onConflict: "id", ignoreDuplicates: false }
+        )
+        .select()
         .single();
 
-      if (data) return data as Profile;
+      if (upserted) return upserted as Profile;
 
-      if (error && error.code === "PGRST116") {
-        const fullName = currentUser.user_metadata?.full_name || "";
-        const role = currentUser.user_metadata?.role || "client";
-        const { data: created, error: insertError } = await supabase
+      if (upsertError) {
+        // Upsert failed (maybe RLS blocks it on very first setup) — try plain select
+        console.warn("Profile upsert failed, falling back to select:", upsertError.message);
+        const { data: existing } = await supabase
           .from("profiles")
-          .insert({ id: currentUser.id, full_name: fullName, role })
-          .select()
+          .select("*")
+          .eq("id", currentUser.id)
           .single();
-        if (insertError) {
-          console.error("Failed to create profile:", insertError.message);
-          return null;
+
+        if (existing) {
+          // Return with corrected role for admin emails even if DB has wrong value
+          return { ...existing, role: isAdminEmail ? "admin" : existing.role } as Profile;
         }
-        return created as Profile;
+
+        // If we still can't get the profile, synthesize one in memory
+        // so the admin can still use the app
+        return {
+          id: currentUser.id,
+          full_name: fullName,
+          role: intendedRole,
+          avatar_url: null,
+          phone: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as Profile;
       }
 
-      if (error) {
-        console.error("Failed to fetch profile:", error.message);
-      }
       return null;
     } catch (err) {
       console.error("Profile fetch error:", err);
