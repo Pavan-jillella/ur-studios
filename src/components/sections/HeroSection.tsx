@@ -1,8 +1,20 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import { getAllPortfolioImages } from "@/api/portfolio";
+import heroBgFallback from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
+  const [heroBg, setHeroBg] = useState<string>(heroBgFallback);
+
+  useEffect(() => {
+    getAllPortfolioImages().then(images => {
+      const cover = images.find(img => img.category === "Cover Photo" && img.is_active);
+      if (cover) {
+        setHeroBg(cover.image_url);
+      }
+    }).catch(console.error);
+  }, []);
   return (
     <section className="relative h-screen overflow-hidden">
       {/* Background Image */}

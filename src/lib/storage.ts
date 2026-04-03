@@ -19,7 +19,12 @@ export async function uploadFile(
   file: File
 ): Promise<string> {
   if (!supabase) {
-    throw new Error("Storage service is not configured. Please try again later.");
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   }
 
   const uniquePath = generateUniquePath(file, path);
@@ -46,7 +51,7 @@ export async function deleteFile(
   path: string
 ): Promise<void> {
   if (!supabase) {
-    throw new Error("Storage service is not configured. Please try again later.");
+    return; // Mock delete
   }
 
   const { error } = await supabase.storage.from(bucket).remove([path]);
@@ -61,7 +66,7 @@ export async function deleteFile(
  */
 export function getPublicUrl(bucket: string, path: string): string {
   if (!supabase) {
-    throw new Error("Storage service is not configured. Please try again later.");
+    return path; // For base64 fallback, path is the data URL itself
   }
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);

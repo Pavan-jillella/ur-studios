@@ -1,5 +1,16 @@
 import { supabase } from "@/lib/supabase";
 
+const LOCAL_STORAGE_KEY = "ur_studios_portfolio";
+
+function getMockImages(): PortfolioImage[] {
+  const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+function saveMockImages(images: PortfolioImage[]) {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(images));
+}
+
 export interface PortfolioImage {
   id: string;
   title: string;
@@ -16,7 +27,9 @@ export type PortfolioImageInsert = Omit<PortfolioImage, "id" | "created_at">;
 
 export async function getPortfolioImages(): Promise<PortfolioImage[]> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    return getMockImages()
+      .filter((img) => img.is_active)
+      .sort((a, b) => a.display_order - b.display_order);
   }
 
   const { data, error } = await supabase
@@ -34,7 +47,7 @@ export async function getPortfolioImages(): Promise<PortfolioImage[]> {
 
 export async function getAllPortfolioImages(): Promise<PortfolioImage[]> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    return getMockImages().sort((a, b) => a.display_order - b.display_order);
   }
 
   const { data, error } = await supabase
@@ -51,7 +64,9 @@ export async function getAllPortfolioImages(): Promise<PortfolioImage[]> {
 
 export async function getFeaturedPortfolioImages(): Promise<PortfolioImage[]> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    return getMockImages()
+      .filter((img) => img.is_active && img.is_featured)
+      .sort((a, b) => a.display_order - b.display_order);
   }
 
   const { data, error } = await supabase
@@ -72,7 +87,14 @@ export async function createPortfolioImage(
   data: PortfolioImageInsert
 ): Promise<PortfolioImage> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    const newImage: PortfolioImage = {
+      ...data,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+    };
+    const current = getMockImages();
+    saveMockImages([...current, newImage]);
+    return newImage;
   }
 
   const { data: created, error } = await supabase
@@ -93,7 +115,13 @@ export async function updatePortfolioImage(
   updates: Partial<PortfolioImage>
 ): Promise<PortfolioImage> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    const images = getMockImages();
+    const index = images.findIndex((img) => img.id === id);
+    if (index === -1) throw new Error("Image not found in local storage");
+    
+    images[index] = { ...images[index], ...updates };
+    saveMockImages(images);
+    return images[index];
   }
 
   const { data, error } = await supabase
@@ -112,7 +140,9 @@ export async function updatePortfolioImage(
 
 export async function deletePortfolioImage(id: string): Promise<void> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    const images = getMockImages();
+    saveMockImages(images.filter((img) => img.id !== id));
+    return;
   }
 
   const { error } = await supabase

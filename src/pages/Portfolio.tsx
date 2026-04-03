@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePageMeta } from "@/lib/seo";
 import { toast } from "sonner";
 
-const CATEGORIES = ["All", "Wedding", "Portrait", "Engagement", "Events"];
+const CATEGORIES = ["All", "Family Gathering", "Catering", "Commercial", "Portraits", "Other"];
 
 export default function Portfolio() {
   usePageMeta("Portfolio");

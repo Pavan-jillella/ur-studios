@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const categories = ["Wedding", "Portrait", "Engagement", "Events", "Commercial"];
+const categories = ["Cover Photo", "Family Gathering", "Catering", "Commercial", "Portraits", "Other"];
 
 interface PortfolioFormData {
   title: string;
@@ -51,7 +51,7 @@ interface PortfolioFormData {
 const defaultFormData: PortfolioFormData = {
   title: "",
   alt_text: "",
-  category: "Wedding",
+  category: "Family Gathering",
   is_featured: false,
   is_active: true,
   display_order: 0,
