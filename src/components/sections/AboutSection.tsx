@@ -41,7 +41,7 @@ const AboutSection = () => {
             </p>
 
             <p className="font-body text-muted-foreground leading-relaxed mb-4">
-              With over eight years of experience in cinematic photography, I specialize in capturing 
+              With over 4 years of experience in cinematic photography, I specialize in capturing 
               the raw, unscripted moments that make your story uniquely yours.
             </p>
 
@@ -51,19 +51,7 @@ const AboutSection = () => {
               available worldwide.
             </p>
 
-            {/* Stats */}
-            <div className="flex gap-12">
-              {[
-                { value: "500+", label: "Sessions" },
-                { value: "12", label: "Awards" },
-                { value: "8", label: "Years" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-display text-3xl font-semibold text-foreground">{stat.value}</p>
-                  <p className="font-body text-[13px] text-muted-foreground mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
+
           </motion.div>
         </div>
       </div>

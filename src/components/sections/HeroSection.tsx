@@ -5,9 +5,8 @@ import { getAllPortfolioImages } from "@/api/portfolio";
 import heroBg1 from "@/assets/hero-bg.jpg";
 import heroBg2 from "@/assets/cover-2.jpg";
 import heroBg3 from "@/assets/cover-3.jpg";
-import heroBg4 from "@/assets/cover-4.jpg";
 
-const COVER_PHOTOS = [heroBg1, heroBg2, heroBg3, heroBg4];
+const COVER_PHOTOS = [heroBg1, heroBg2, heroBg3];
 const ROTATION_INTERVAL = 8000; // 8 seconds per image
 
 const HeroSection = () => {
