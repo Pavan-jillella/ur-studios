@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Emails that should always be treated as admin
-  const ADMIN_EMAILS = ["pavankalyan171199@gmail.com", "admin@urstudios.com"];
+  const ADMIN_EMAILS = ["udayreddy416@gmail.com", "pavanjillella.1711@gmail.com"];
 
   const fetchProfile = useCallback(async (currentUser: User): Promise<Profile | null> => {
     if (!supabase) {
