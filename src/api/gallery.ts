@@ -45,7 +45,8 @@ export type GalleryPhotoInsert = Omit<GalleryPhoto, "id" | "created_at">;
 
 export async function getAllAlbums(): Promise<GalleryAlbum[]> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    // Return empty array in dev mode — albums are a Supabase-only feature
+    return [];
   }
 
   const { data, error } = await supabase
@@ -64,7 +65,7 @@ export async function getClientAlbums(
   clientId: string
 ): Promise<GalleryAlbum[]> {
   if (!supabase) {
-    throw new Error("Service is not configured. Please try again later.");
+    return [];
   }
 
   const { data, error } = await supabase

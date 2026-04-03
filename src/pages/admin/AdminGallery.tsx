@@ -79,15 +79,19 @@ export default function AdminGallery() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [albumsData, bookingsData] = await Promise.all([
+      const [albumsData, bookingsData] = await Promise.allSettled([
         getAllAlbums(),
         getBookings(),
       ]);
-      setAlbums(albumsData);
-      setBookings(bookingsData);
-    } catch (err) {
-      toast.error("Failed to load gallery data");
-      console.error(err);
+      setAlbums(albumsData.status === "fulfilled" ? albumsData.value : []);
+      setBookings(bookingsData.status === "fulfilled" ? bookingsData.value : []);
+      // Only show error if BOTH failed and it's a real error (not just empty)
+      if (albumsData.status === "rejected" && bookingsData.status === "rejected") {
+        const msg = (albumsData.reason as Error)?.message || "";
+        if (!msg.includes("not configured")) {
+          toast.error("Failed to load gallery data");
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -118,6 +122,10 @@ export default function AdminGallery() {
         status: formData.status as "draft" | "proofing" | "delivered",
         is_downloadable: formData.is_downloadable,
         cover_image_url: null,
+        selection_limit: null,
+        selection_submitted_at: null,
+        selection_approved_at: null,
+        admin_feedback: null,
       };
 
       const created = await createAlbum(payload);
@@ -221,7 +229,7 @@ export default function AdminGallery() {
                       {album.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{album.photo_count ?? 0}</TableCell>
+                  <TableCell>—</TableCell>
                   <TableCell>
                     {album.is_downloadable ? (
                       <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
