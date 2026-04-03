@@ -63,26 +63,24 @@ const PortfolioSection = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {images.map((image, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.08 }}
-              className={`group cursor-pointer relative overflow-hidden rounded-xl ${
-                index % 3 === 0 ? "md:col-span-2" : ""
-              }`}
+              className="group cursor-pointer relative overflow-hidden rounded-xl bg-muted/30"
               onClick={() => openLightbox(index)}
             >
-              <img
-                src={image.src}
-                alt={image.alt}
-                className={`w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] ${
-                  index % 3 === 0 ? "aspect-[21/9]" : "aspect-[4/3]"
-                }`}
-                loading="lazy"
-              />
+              <div className="aspect-[4/5] flex items-center justify-center">
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  loading="lazy"
+                />
+              </div>
               <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-all duration-500" />
             </motion.div>
           ))}
