@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Upload, Save, Trash2, Plus, GripVertical, ImageIcon } from "lucide-react";
+import { Upload, Save, Trash2, Plus, GripVertical, ImageIcon, Instagram, Facebook, Twitter, Youtube, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import {
   getHeroSettings,
   updateHeroSettings,
   getAboutSettings,
   updateAboutSettings,
+  getSocialLinks,
+  updateSocialLinks,
+  getContactSettings,
+  updateContactSettings,
   type HeroSettings,
   type AboutSettings,
+  type SocialLinks,
+  type ContactSettings,
 } from "@/api/settings";
 import {
   getAllCoverImages,
@@ -56,6 +62,30 @@ export default function AdminSettings() {
     imageUrl: "",
   });
 
+  // Social links
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    instagram: "",
+    facebook: "",
+    twitter: "",
+    youtube: "",
+    pinterest: "",
+    tiktok: "",
+    linkedin: "",
+  });
+
+  // Contact settings
+  const [contactSettings, setContactSettings] = useState<ContactSettings>({
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    businessHours: "",
+    mapEmbedUrl: "",
+  });
+
   // Cover images
   const [coverImages, setCoverImages] = useState<CoverImage[]>([]);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -74,14 +104,18 @@ export default function AdminSettings() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [hero, about, covers] = await Promise.all([
+      const [hero, about, covers, social, contact] = await Promise.all([
         getHeroSettings(),
         getAboutSettings(),
         getAllCoverImages(),
+        getSocialLinks(),
+        getContactSettings(),
       ]);
       setHeroSettings(hero);
       setAboutSettings(about);
       setCoverImages(covers);
+      setSocialLinks(social);
+      setContactSettings(contact);
     } catch (err) {
       toast.error("Failed to load settings");
       console.error(err);
@@ -125,6 +159,32 @@ export default function AdminSettings() {
       toast.success("About settings saved");
     } catch (err) {
       toast.error("Failed to save about settings");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveSocial = async () => {
+    setSaving(true);
+    try {
+      await updateSocialLinks(socialLinks);
+      toast.success("Social links saved");
+    } catch (err) {
+      toast.error("Failed to save social links");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveContact = async () => {
+    setSaving(true);
+    try {
+      await updateContactSettings(contactSettings);
+      toast.success("Contact settings saved");
+    } catch (err) {
+      toast.error("Failed to save contact settings");
       console.error(err);
     } finally {
       setSaving(false);
@@ -247,10 +307,12 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="hero" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="covers">Cover Images</TabsTrigger>
           <TabsTrigger value="about">About Section</TabsTrigger>
+          <TabsTrigger value="social">Social Links</TabsTrigger>
+          <TabsTrigger value="contact">Contact Info</TabsTrigger>
         </TabsList>
 
         {/* Hero Settings Tab */}
@@ -518,6 +580,260 @@ export default function AdminSettings() {
               <Button onClick={handleSaveAbout} disabled={saving}>
                 <Save className="mr-2 h-4 w-4" />
                 {saving ? "Saving..." : "Save About Settings"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Social Links Tab */}
+        <TabsContent value="social">
+          <Card>
+            <CardHeader>
+              <CardTitle>Social Media Links</CardTitle>
+              <CardDescription>
+                Connect your social media profiles. Leave empty to hide from website.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="instagram" className="flex items-center gap-2">
+                    <Instagram className="h-4 w-4" /> Instagram
+                  </Label>
+                  <Input
+                    id="instagram"
+                    value={socialLinks.instagram}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, instagram: e.target.value }))
+                    }
+                    placeholder="https://instagram.com/username"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="facebook" className="flex items-center gap-2">
+                    <Facebook className="h-4 w-4" /> Facebook
+                  </Label>
+                  <Input
+                    id="facebook"
+                    value={socialLinks.facebook}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, facebook: e.target.value }))
+                    }
+                    placeholder="https://facebook.com/page"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="twitter" className="flex items-center gap-2">
+                    <Twitter className="h-4 w-4" /> Twitter / X
+                  </Label>
+                  <Input
+                    id="twitter"
+                    value={socialLinks.twitter}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, twitter: e.target.value }))
+                    }
+                    placeholder="https://twitter.com/username"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="youtube" className="flex items-center gap-2">
+                    <Youtube className="h-4 w-4" /> YouTube
+                  </Label>
+                  <Input
+                    id="youtube"
+                    value={socialLinks.youtube}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, youtube: e.target.value }))
+                    }
+                    placeholder="https://youtube.com/channel"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="pinterest">Pinterest</Label>
+                  <Input
+                    id="pinterest"
+                    value={socialLinks.pinterest}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, pinterest: e.target.value }))
+                    }
+                    placeholder="https://pinterest.com/username"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Input
+                    id="tiktok"
+                    value={socialLinks.tiktok}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, tiktok: e.target.value }))
+                    }
+                    placeholder="https://tiktok.com/@username"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin" className="flex items-center gap-2">
+                    <Linkedin className="h-4 w-4" /> LinkedIn
+                  </Label>
+                  <Input
+                    id="linkedin"
+                    value={socialLinks.linkedin}
+                    onChange={(e) =>
+                      setSocialLinks((prev) => ({ ...prev, linkedin: e.target.value }))
+                    }
+                    placeholder="https://linkedin.com/in/username"
+                  />
+                </div>
+              </div>
+
+              <Button onClick={handleSaveSocial} disabled={saving}>
+                <Save className="mr-2 h-4 w-4" />
+                {saving ? "Saving..." : "Save Social Links"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Contact Settings Tab */}
+        <TabsContent value="contact">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+              <CardDescription>
+                Your business contact details displayed on the website
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" /> Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={contactSettings.email}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    placeholder="hello@urpixelstudio.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" /> Phone
+                  </Label>
+                  <Input
+                    id="phone"
+                    value={contactSettings.phone}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, phone: e.target.value }))
+                    }
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="address" className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" /> Address
+                  </Label>
+                  <Input
+                    id="address"
+                    value={contactSettings.address}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, address: e.target.value }))
+                    }
+                    placeholder="123 Main Street"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={contactSettings.city}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, city: e.target.value }))
+                    }
+                    placeholder="Richmond"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      value={contactSettings.state}
+                      onChange={(e) =>
+                        setContactSettings((prev) => ({ ...prev, state: e.target.value }))
+                      }
+                      placeholder="VA"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="zip">ZIP Code</Label>
+                    <Input
+                      id="zip"
+                      value={contactSettings.zip}
+                      onChange={(e) =>
+                        setContactSettings((prev) => ({ ...prev, zip: e.target.value }))
+                      }
+                      placeholder="23219"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input
+                    id="country"
+                    value={contactSettings.country}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, country: e.target.value }))
+                    }
+                    placeholder="USA"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="businessHours">Business Hours</Label>
+                  <Input
+                    id="businessHours"
+                    value={contactSettings.businessHours}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, businessHours: e.target.value }))
+                    }
+                    placeholder="Mon-Fri 9am-6pm"
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="mapEmbedUrl">Google Maps Embed URL (optional)</Label>
+                  <Input
+                    id="mapEmbedUrl"
+                    value={contactSettings.mapEmbedUrl}
+                    onChange={(e) =>
+                      setContactSettings((prev) => ({ ...prev, mapEmbedUrl: e.target.value }))
+                    }
+                    placeholder="https://www.google.com/maps/embed?..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Paste the embed URL from Google Maps to show a map on your contact page
+                  </p>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveContact} disabled={saving}>
+                <Save className="mr-2 h-4 w-4" />
+                {saving ? "Saving..." : "Save Contact Info"}
               </Button>
             </CardContent>
           </Card>

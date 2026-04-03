@@ -22,6 +22,28 @@ export interface AboutSettings {
   imageUrl: string;
 }
 
+export interface SocialLinks {
+  instagram: string;
+  facebook: string;
+  twitter: string;
+  youtube: string;
+  pinterest: string;
+  tiktok: string;
+  linkedin: string;
+}
+
+export interface ContactSettings {
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  businessHours: string;
+  mapEmbedUrl: string;
+}
+
 const LOCAL_STORAGE_KEY = "ur_studios_settings";
 
 function getLocalSettings(): Record<string, Record<string, unknown>> {
@@ -46,6 +68,28 @@ const defaultAbout: AboutSettings = {
   bio1: "With over 4 years of experience in cinematic photography, I specialize in capturing the raw, unscripted moments that make your story uniquely yours.",
   bio2: "My approach blends documentary storytelling with fine art aesthetics, resulting in photographs that are both emotionally powerful and visually stunning. Based in Virginia, available worldwide.",
   imageUrl: "",
+};
+
+const defaultSocialLinks: SocialLinks = {
+  instagram: "https://instagram.com/urpixelstudio",
+  facebook: "",
+  twitter: "",
+  youtube: "",
+  pinterest: "",
+  tiktok: "",
+  linkedin: "",
+};
+
+const defaultContactSettings: ContactSettings = {
+  email: "hello@urpixelstudio.com",
+  phone: "",
+  address: "",
+  city: "Virginia",
+  state: "VA",
+  zip: "",
+  country: "USA",
+  businessHours: "Mon-Fri 9am-6pm",
+  mapEmbedUrl: "",
 };
 
 export async function getSetting<T>(key: string): Promise<T | null> {
@@ -113,4 +157,28 @@ export async function updateAboutSettings(
 ): Promise<void> {
   const current = await getAboutSettings();
   await updateSetting("about", { ...current, ...settings });
+}
+
+export async function getSocialLinks(): Promise<SocialLinks> {
+  const settings = await getSetting<SocialLinks>("social");
+  return settings || defaultSocialLinks;
+}
+
+export async function updateSocialLinks(
+  settings: Partial<SocialLinks>
+): Promise<void> {
+  const current = await getSocialLinks();
+  await updateSetting("social", { ...current, ...settings });
+}
+
+export async function getContactSettings(): Promise<ContactSettings> {
+  const settings = await getSetting<ContactSettings>("contact");
+  return settings || defaultContactSettings;
+}
+
+export async function updateContactSettings(
+  settings: Partial<ContactSettings>
+): Promise<void> {
+  const current = await getContactSettings();
+  await updateSetting("contact", { ...current, ...settings });
 }

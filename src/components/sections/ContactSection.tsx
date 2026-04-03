@@ -1,10 +1,11 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Mail, Phone, MapPin, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { createBooking } from "@/api/bookings";
 import { getServices, type Service } from "@/api/services";
 import { createCheckoutSession } from "@/api/payments";
+import { getContactSettings, type ContactSettings } from "@/api/settings";
 import { useAuth } from "@/contexts/AuthContext";
 
 const initialFormData = {
@@ -23,11 +24,15 @@ const ContactSection = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
+  const [contactInfo, setContactInfo] = useState<ContactSettings | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
     getServices()
       .then((data) => setServices(data))
+      .catch(() => {});
+    getContactSettings()
+      .then((data) => setContactInfo(data))
       .catch(() => {});
   }, []);
 
@@ -84,7 +89,7 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="section-padding bg-background" ref={ref}>
-      <div className="container mx-auto max-w-3xl">
+      <div className="container mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -100,13 +105,77 @@ const ContactSection = () => {
           </p>
         </motion.div>
 
-        <motion.form
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.3 }}
-          onSubmit={handleSubmit}
-          className="space-y-8"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Contact Info Sidebar */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.2 }}
+            className="space-y-8"
+          >
+            {contactInfo?.email && (
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-muted">
+                  <Mail className="h-5 w-5 text-foreground" />
+                </div>
+                <div>
+                  <p className="font-body text-sm text-muted-foreground">Email</p>
+                  <a href={`mailto:${contactInfo.email}`} className="font-body text-foreground hover:underline">
+                    {contactInfo.email}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {contactInfo?.phone && (
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-muted">
+                  <Phone className="h-5 w-5 text-foreground" />
+                </div>
+                <div>
+                  <p className="font-body text-sm text-muted-foreground">Phone</p>
+                  <a href={`tel:${contactInfo.phone}`} className="font-body text-foreground hover:underline">
+                    {contactInfo.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {(contactInfo?.city || contactInfo?.state) && (
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-muted">
+                  <MapPin className="h-5 w-5 text-foreground" />
+                </div>
+                <div>
+                  <p className="font-body text-sm text-muted-foreground">Location</p>
+                  <p className="font-body text-foreground">
+                    {[contactInfo.address, contactInfo.city, contactInfo.state].filter(Boolean).join(", ")}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {contactInfo?.businessHours && (
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-full bg-muted">
+                  <Clock className="h-5 w-5 text-foreground" />
+                </div>
+                <div>
+                  <p className="font-body text-sm text-muted-foreground">Hours</p>
+                  <p className="font-body text-foreground">{contactInfo.businessHours}</p>
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.3 }}
+            onSubmit={handleSubmit}
+            className="space-y-8 lg:col-span-2"
+          >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <input
               type="text" required placeholder="Your name"
@@ -202,7 +271,8 @@ const ContactSection = () => {
                 : "We respond within 24 hours. No commitment required."}
             </p>
           </div>
-        </motion.form>
+          </motion.form>
+        </div>
       </div>
     </section>
   );
