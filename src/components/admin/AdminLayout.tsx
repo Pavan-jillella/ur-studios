@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Receipt,
   BarChart3,
+  Settings,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -43,6 +44,7 @@ const navItems = [
   { label: "Services", icon: FileText, to: "/admin/services" },
   { label: "Testimonials", icon: MessageSquare, to: "/admin/testimonials" },
   { label: "Blog", icon: FileText, to: "/admin/blog" },
+  { label: "Site Settings", icon: Settings, to: "/admin/settings" },
 ];
 
 export default function AdminLayout() {

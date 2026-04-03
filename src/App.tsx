@@ -35,6 +35,7 @@ const AdminClientProfile = lazy(() => import("./pages/admin/AdminClientProfile")
 const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
 const AdminInvoices = lazy(() => import("./pages/admin/AdminInvoices"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const PortalLayout = lazy(() => import("./components/portal/PortalLayout"));
 const PortalLanding = lazy(() => import("./pages/portal/PortalLanding"));
@@ -88,6 +89,7 @@ const App = () => (
                 <Route path="/admin/projects" element={<AdminProjects />} />
                 <Route path="/admin/invoices" element={<AdminInvoices />} />
                 <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/admin/settings" element={<AdminSettings />} />
               </Route>
             </Route>
 

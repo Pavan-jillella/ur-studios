@@ -1,24 +1,61 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { getAllPortfolioImages } from "@/api/portfolio";
+import { getCoverImages, type CoverImage } from "@/api/coverImages";
+import { getHeroSettings, type HeroSettings } from "@/api/settings";
 import heroBg1 from "@/assets/hero-bg.jpg";
 import heroBg2 from "@/assets/cover-2.jpg";
 import heroBg3 from "@/assets/cover-3.jpg";
 
-const COVER_PHOTOS = [heroBg1, heroBg2, heroBg3];
+const FALLBACK_PHOTOS = [heroBg1, heroBg2, heroBg3];
 const ROTATION_INTERVAL = 8000; // 8 seconds per image
+
+const defaultHeroSettings: HeroSettings = {
+  tagline: "Cinematic Photography",
+  title: "Capturing Timeless",
+  titleAccent: "Moments",
+  subtitle: "Every frame tells a story. Every story deserves to be remembered.",
+};
 
 const HeroSection = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [coverImages, setCoverImages] = useState<CoverImage[]>([]);
+  const [heroSettings, setHeroSettings] = useState<HeroSettings>(defaultHeroSettings);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch cover images and settings
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [images, settings] = await Promise.all([
+          getCoverImages(),
+          getHeroSettings(),
+        ]);
+        setCoverImages(images);
+        setHeroSettings(settings);
+      } catch (err) {
+        console.error("Failed to load hero data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Get images to display (from DB or fallback)
+  const displayImages = coverImages.length > 0 
+    ? coverImages.map(img => img.image_url) 
+    : FALLBACK_PHOTOS;
 
   useEffect(() => {
+    if (displayImages.length <= 1) return;
+    
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % COVER_PHOTOS.length);
+      setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
     }, ROTATION_INTERVAL);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [displayImages.length]);
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -27,7 +64,7 @@ const HeroSection = () => {
         <AnimatePresence mode="wait">
           <motion.img
             key={currentImageIndex}
-            src={COVER_PHOTOS[currentImageIndex]}
+            src={displayImages[currentImageIndex]}
             alt="Cinematic wedding photography"
             className="w-full h-full object-cover animate-slow-zoom"
             initial={{ scale: 1.1, opacity: 0 }}
@@ -47,7 +84,7 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.4 }}
         >
           <p className="font-body text-[13px] tracking-[0.3em] uppercase text-background/80 mb-4">
-            Cinematic Photography
+            {heroSettings.tagline}
           </p>
         </motion.div>
 
@@ -57,9 +94,9 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.7 }}
           className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-medium text-background leading-[1.05] max-w-3xl tracking-tight"
         >
-          Capturing Timeless
+          {heroSettings.title}
           <br />
-          <span className="italic">Moments</span>
+          <span className="italic">{heroSettings.titleAccent}</span>
         </motion.h1>
 
         <motion.p
@@ -68,7 +105,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 1 }}
           className="font-body text-base md:text-lg text-background/70 mt-5 max-w-md font-light"
         >
-          Every frame tells a story. Every story deserves to be remembered.
+          {heroSettings.subtitle}
         </motion.p>
 
         <motion.div
