@@ -21,11 +21,31 @@ const MOCK_USERS = {
       created_at: new Date().toISOString(),
     },
   },
+  // Real photographer admin account
+  "pavankalyan171199@gmail.com": {
+    password: "1234567",
+    profile: {
+      id: "pavan-admin-id",
+      full_name: "Pavan Jillella",
+      role: "admin" as const,
+      created_at: new Date().toISOString(),
+    },
+  },
   "client@urstudios.com": {
     password: "Client123!",
     profile: {
       id: "mock-client-id",
       full_name: "Test Client",
+      role: "client" as const,
+      created_at: new Date().toISOString(),
+    },
+  },
+  // Demo client for testing
+  "demo@client.com": {
+    password: "Demo123!",
+    profile: {
+      id: "demo-client-id",
+      full_name: "Demo Client",
       role: "client" as const,
       created_at: new Date().toISOString(),
     },

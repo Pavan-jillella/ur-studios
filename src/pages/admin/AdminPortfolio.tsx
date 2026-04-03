@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload, ImageIcon } from "lucide-react";
+import { Pencil, Trash2, Upload, ImageIcon } from "lucide-react";
 import {
   getAllPortfolioImages,
   createPortfolioImage,

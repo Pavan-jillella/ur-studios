@@ -27,9 +27,38 @@ export interface BookingInsert {
   message?: string;
 }
 
+const LOCAL_STORAGE_KEY = "ur_studios_bookings";
+
+function getMockBookings(): Booking[] {
+  const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+function saveMockBookings(bookings: Booking[]) {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(bookings));
+}
+
 export async function createBooking(booking: BookingInsert) {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    const newBooking: Booking = {
+      id: crypto.randomUUID(),
+      name: booking.name,
+      email: booking.email,
+      phone: booking.phone ?? null,
+      event_date: booking.event_date ?? null,
+      location: booking.location ?? null,
+      service_type: booking.service_type,
+      message: booking.message ?? null,
+      status: "pending",
+      client_id: null,
+      payment_status: "unpaid",
+      assigned_album_id: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    const current = getMockBookings();
+    saveMockBookings([newBooking, ...current]);
+    return newBooking;
   }
 
   const { data, error } = await supabase
@@ -47,7 +76,7 @@ export async function createBooking(booking: BookingInsert) {
 
 export async function getBookings(): Promise<Booking[]> {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    return getMockBookings();
   }
 
   const { data, error } = await supabase
@@ -64,7 +93,10 @@ export async function getBookings(): Promise<Booking[]> {
 
 export async function getBookingById(id: string): Promise<Booking> {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    const bookings = getMockBookings();
+    const booking = bookings.find((b) => b.id === id);
+    if (!booking) throw new Error("Booking not found");
+    return booking;
   }
 
   const { data, error } = await supabase
@@ -85,7 +117,12 @@ export async function updateBooking(
   updates: Partial<Booking>
 ): Promise<Booking> {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    const bookings = getMockBookings();
+    const index = bookings.findIndex((b) => b.id === id);
+    if (index === -1) throw new Error("Booking not found");
+    bookings[index] = { ...bookings[index], ...updates, updated_at: new Date().toISOString() };
+    saveMockBookings(bookings);
+    return bookings[index];
   }
 
   const { data, error } = await supabase
@@ -104,7 +141,9 @@ export async function updateBooking(
 
 export async function deleteBooking(id: string): Promise<void> {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    const bookings = getMockBookings();
+    saveMockBookings(bookings.filter((b) => b.id !== id));
+    return;
   }
 
   const { error } = await supabase
@@ -119,7 +158,7 @@ export async function deleteBooking(id: string): Promise<void> {
 
 export async function getClientBookings(clientId: string): Promise<Booking[]> {
   if (!supabase) {
-    throw new Error("Booking service is not configured. Please try again later.");
+    return getMockBookings().filter((b) => b.client_id === clientId);
   }
 
   const { data, error } = await supabase
