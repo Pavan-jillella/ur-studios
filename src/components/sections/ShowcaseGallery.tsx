@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { getPortfolioImages, type PortfolioImage } from "@/api/portfolio";
+import { getShowcasePortfolioImages, type PortfolioImage } from "@/api/portfolio";
 import portfolio1 from "@/assets/portfolio-1.jpg";
 import portfolio2 from "@/assets/portfolio-2.jpg";
 import portfolio3 from "@/assets/portfolio-3.jpg";
@@ -24,7 +24,7 @@ const ShowcaseGallery = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getPortfolioImages()
+    getShowcasePortfolioImages()
       .then((data) => setDbImages(data.slice(0, 6)))
       .catch(() => {})
       .finally(() => setLoaded(true));

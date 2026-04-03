@@ -45,6 +45,28 @@ export async function getPortfolioImages(): Promise<PortfolioImage[]> {
   return (data ?? []) as PortfolioImage[];
 }
 
+/** Showcase Gallery images — only NON-featured active images */
+export async function getShowcasePortfolioImages(): Promise<PortfolioImage[]> {
+  if (!supabase) {
+    return getMockImages()
+      .filter((img) => img.is_active && !img.is_featured)
+      .sort((a, b) => a.display_order - b.display_order);
+  }
+
+  const { data, error } = await supabase
+    .from("portfolio_images")
+    .select("*")
+    .eq("is_active", true)
+    .eq("is_featured", false)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as PortfolioImage[];
+}
+
 export async function getAllPortfolioImages(): Promise<PortfolioImage[]> {
   if (!supabase) {
     return getMockImages().sort((a, b) => a.display_order - b.display_order);

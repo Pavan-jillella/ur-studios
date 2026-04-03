@@ -276,17 +276,35 @@ export default function AdminPortfolio() {
       </div>
 
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3">
-          <Switch
-            id="is_featured"
-            checked={formData.is_featured}
-            onCheckedChange={(checked) =>
-              setFormData((prev) => ({ ...prev, is_featured: checked }))
+        <div className="flex-1">
+          <Label htmlFor="display_section" className="text-sm font-medium mb-1.5 block">
+            Display Section
+          </Label>
+          <Select
+            value={formData.is_featured ? "featured" : "showcase"}
+            onValueChange={(val) =>
+              setFormData((prev) => ({ ...prev, is_featured: val === "featured" }))
             }
-          />
-          <Label htmlFor="is_featured">Featured</Label>
+          >
+            <SelectTrigger id="display_section">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="showcase">
+                Showcase Gallery (Our Work)
+              </SelectItem>
+              <SelectItem value="featured">
+                Featured Portfolio (Selected Works)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {formData.is_featured
+              ? "→ Shows in the 'Selected Works / Featured Portfolio' section"
+              : "→ Shows in the 'Our Work / Showcase Gallery' section"}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pt-4">
           <Switch
             id="is_active"
             checked={formData.is_active}
@@ -347,11 +365,15 @@ export default function AdminPortfolio() {
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
                 <div className="absolute top-2 right-2 flex gap-1">
-                  {image.is_featured && (
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-[10px]">
-                      Featured
-                    </Badge>
-                  )}
+                  <Badge
+                    className={
+                      image.is_featured
+                        ? "bg-amber-100 text-amber-800 border-amber-200 text-[10px]"
+                        : "bg-blue-100 text-blue-800 border-blue-200 text-[10px]"
+                    }
+                  >
+                    {image.is_featured ? "Selected Works" : "Showcase"}
+                  </Badge>
                   <Badge variant="secondary" className="text-[10px]">
                     {image.category}
                   </Badge>
