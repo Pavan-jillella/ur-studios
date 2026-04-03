@@ -1,32 +1,42 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { getAllPortfolioImages } from "@/api/portfolio";
-import heroBgFallback from "@/assets/hero-bg.jpg";
+import heroBg1 from "@/assets/hero-bg.jpg";
+import heroBg2 from "@/assets/cover-2.jpg";
+import heroBg3 from "@/assets/cover-3.jpg";
+import heroBg4 from "@/assets/cover-4.jpg";
+
+const COVER_PHOTOS = [heroBg1, heroBg2, heroBg3, heroBg4];
+const ROTATION_INTERVAL = 8000; // 8 seconds per image
 
 const HeroSection = () => {
-  const [heroBg, setHeroBg] = useState<string>(heroBgFallback);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
-    getAllPortfolioImages().then(images => {
-      const cover = images.find(img => img.category === "Cover Photo" && img.is_active);
-      if (cover) {
-        setHeroBg(cover.image_url);
-      }
-    }).catch(console.error);
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % COVER_PHOTOS.length);
+    }, ROTATION_INTERVAL);
+
+    return () => clearInterval(interval);
   }, []);
+
   return (
     <section className="relative h-screen overflow-hidden">
-      {/* Background Image */}
+      {/* Background Image Carousel */}
       <div className="absolute inset-0">
-        <motion.img
-          src={heroBg}
-          alt="Cinematic wedding photography"
-          className="w-full h-full object-cover animate-slow-zoom"
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            src={COVER_PHOTOS[currentImageIndex]}
+            alt="Cinematic wedding photography"
+            className="w-full h-full object-cover animate-slow-zoom"
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2, ease: "easeOut" }}
+          />
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/80" />
       </div>
 
